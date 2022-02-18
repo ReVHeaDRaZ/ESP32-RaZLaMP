@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "..\\..\\MyFirstESPprog"
+		},
+		{
+			"name": "RaZESP32ws2812b",
+			"path": ".."
+		},
+		{
+			"name": "RaZFireWorks",
+			"path": "..\\..\\RaZFireWorks"
+		},
+		{
+			"name": "FastLEDStuffAround",
+			"path": "..\\..\\FastLEDStuffAround"
+		}
+	],
+	"settings": {}
+}
