@@ -5,7 +5,7 @@
 
 // Set these to your desired credentials.
 const char *ssid = "RaZESP32LaMP";
-const char *password = "Pantera1981";
+const char *password = "password";  // Add/change to WiFi.softAP(ssid,password) if you want to use a password
  
 WiFiServer server(80);
 String header;
@@ -34,12 +34,12 @@ void WifiSetup() {
   Serial.println("Configuring access point...");
  
   // You can remove the password parameter if you want the AP to be open.
-  WiFi.softAP(ssid, password);
+  WiFi.softAP(ssid);
   IPAddress myIP = WiFi.softAPIP();
   Serial.print("AP IP address: ");
   Serial.println(myIP);
+  
   server.begin();
- 
   Serial.println("Server started");
   delay(1000);
 }
@@ -237,8 +237,8 @@ void WifiCheck(){
               Serial.println(temptextstring);
               for(int i=0;i<ARRAYSIZE(textString); i++)textString[i]=0; //reset string to null
               for(int i=(temptextstring.length())-1; i>=0; i--){    //set string in reverse
-              textString[j]=temptextstring[i];
-              j++;  
+                textString[j]=temptextstring[i];
+                j++;  
               }
               textString[j]=0;            //Set last of string to 0
               Serial.println(textString);
