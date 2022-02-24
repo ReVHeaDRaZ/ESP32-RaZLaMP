@@ -2,10 +2,11 @@
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WiFiAP.h>
+#include <WiFiManager.h>
 
-// Set these to your desired credentials.
+// Set these to your desired credentials if using AccessPoint Mode.
 const char *ssid = "RaZESP32LaMP";
-const char *password = "password";  // Add/change to WiFi.softAP(ssid,password) if you want to use a password
+const char *password = "password";  // Add/change in WifiSetup() if you want to use a password. eg. WiFi.softAP(ssid,password)
  
 WiFiServer server(80);
 String header;
@@ -29,15 +30,45 @@ String PatternName = "AUTO";          // To Display on webpage
 String Brightness = "75%";
 
 //Initial Wifi Setup Function
-void WifiSetup() {
-  Serial.println();
-  Serial.println("Configuring access point...");
+void WifiSetup(bool AccessPointMode) {
+  // AccessPointMode
+  if(AccessPointMode){
+    Serial.println();
+    Serial.println("Configuring access point...");
  
-  // You can remove the password parameter if you want the AP to be open.
-  WiFi.softAP(ssid);
-  IPAddress myIP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(myIP);
+    // You can remove the password parameter if you want the AP to be open.
+    WiFi.softAP(ssid);
+    IPAddress myIP = WiFi.softAPIP();
+    Serial.print("AP IP address: ");
+    Serial.println(myIP);
+  }
+  // StationPointMode
+  else{
+    Serial.println();
+    Serial.println("Attempt connecting to network...");
+    delay(10);
+    WiFiManager wifiManager;
+    // If you've previously connected to your WiFi with this ESP32,
+    // WiFi manager will more than likely not do anything.
+    // Uncomment this if you want to force it to delete your old WiFi details.
+    //wifiManager.resetSettings();
+
+    // Static IP Setting
+    //wifiManager.setSTAStaticIPConfig(IPAddress(192,168,0,116),IPAddress(192,168,0,1),IPAddress(255,255,255,0));
+
+    //Tries to connect to last known WiFi details
+    //if it does not connect it starts an access point with the specified name
+    //and goes into a blocking loop for 20seconds awaiting configuration
+    wifiManager.setConfigPortalTimeout(30);
+    if (!wifiManager.autoConnect("RaZLaMPWiFiSetupAP")) {
+      Serial.println("failed to connect and hit timeout");
+      //can reset and try again, or maybe put it to deep sleep
+      //ESP.restart();
+      delay(1000);
+    }
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
+  }
   
   server.begin();
   Serial.println("Server started");
@@ -46,13 +77,13 @@ void WifiSetup() {
  
 
 void WifiCheck(){
-  WiFiClient client = server.available();   // Listen for incoming clients
+  WiFiClient client = server.available();    // Listen for incoming clients
 
-  if (client) {                             // If a new client connects,
+  if (client) {                                 // If a new client connects,
     currentTime = millis();
     previousTime = currentTime;
-    Serial.println("New Client.");          // print a message out in the serial port
-    String currentLine = "";                // make a String to hold incoming data from the client
+    Serial.println("New Client.");              // print a message out in the serial port
+    String currentLine = "";                    // make a String to hold incoming data from the client
     
     // loop while the client's connected
     while (client.connected() && currentTime - previousTime <= timeoutTime) {

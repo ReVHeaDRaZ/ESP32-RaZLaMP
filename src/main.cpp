@@ -102,7 +102,8 @@ void setup()
         SoundReactive     = 1;
         AutoPatternNumber = 1;
       }else {
-        WifiSetup();                          // Setup Wifi Server
+        // Setup Wifi Server (true-AccessPointMode, false-StationPointMode)
+        WifiSetup(false);                          
       }
   
 }
