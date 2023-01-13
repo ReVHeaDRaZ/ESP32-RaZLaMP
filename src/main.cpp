@@ -33,7 +33,7 @@ bool SwitchState = 1;             // For Switch Active Low
 bool SoundReactive = 0;           // For Selecting Sound Reactive Patterns
 bool displayInfo = false;         // Display info on OLED/serial?
 bool wifiApMode = false;          // Use Wifi as an AccessPoint = true, as a StationPoint = false
-bool useMQTT = true;
+bool useMQTT = false;
 
 unsigned long currentMillis = 0;  // Used for timing between detections
 unsigned long previousMillis = 0;                             
