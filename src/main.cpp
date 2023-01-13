@@ -31,7 +31,9 @@ int AutoPatternNumber = 16;       // For Auto Select Pattern Function, Start Pat
 bool ButtonState = 1;             // For Button Active Low
 bool SwitchState = 1;             // For Switch Active Low
 bool SoundReactive = 0;           // For Selecting Sound Reactive Patterns
-bool displayInfo = false;          // Display info on OLED/serial?
+bool displayInfo = false;         // Display info on OLED/serial?
+bool wifiApMode = false;          // Use Wifi as an AccessPoint = true, as a StationPoint = false
+bool useMQTT = true;
 
 unsigned long currentMillis = 0;  // Used for timing between detections
 unsigned long previousMillis = 0;                             
@@ -56,6 +58,7 @@ void PowerTest();
 #include "FFT.h"
 #include "Patterns.h"             // All Patterns
 #include "RazWifi.h"              // RaZ's Wifi Server
+#include "RaZMQTT.h"
 
 // UnComment out all for OLED display *********************************************************** 
 //#include <U8g2lib.h>            // Library for OLED on Heltec
@@ -103,7 +106,11 @@ void setup()
         AutoPatternNumber = 1;
       }else {
         // Setup Wifi Server (true-AccessPointMode, false-StationPointMode)
-        WifiSetup(false);                          
+        WifiSetup(wifiApMode);
+        if(wifiApMode==false){
+          mqttclient.setServer(mqtt_server, 1883);
+          mqttclient.setCallback(callback);
+        }                          
       }
   
 }
@@ -165,6 +172,8 @@ void loop()
       }else {                                   // Else
         SoundReactive = 0;
         WifiCheck();                            // Check Wifi for Clients and Set Patterns
+        if((useMQTT) && (wifiApMode==false) )
+          MQTTCheck();
       }
 
     // Handle OLED drawing and Serial Monitor
