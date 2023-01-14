@@ -5,7 +5,8 @@
 //  Changed LetterBounce.h to implement changing text and 8 Characters
 //  Added Change text option to RazWifi.h :)
 //  Added Swirl Effect, Snakes, MAGMA, Circles and NoisePatterns
-//  Upped Max Power to 40000ma 8amps at 5v
+//  Upped Max Power to 40000mW - 8amps at 5v
+//  Added MQTT support and automatically set Time from NTP if connected to Internet
 
 #include <Arduino.h>
 #define FASTLED_INTERNAL          // Supress Build Banner
@@ -25,7 +26,7 @@
 CRGB g_LEDs[NUM_STRIPS][NUM_LEDS] = {0};      // Frame buffer for FastLED
 
 int g_Brightness = 200;           // Brightness Setting
-int g_PowerLimit = 40000;         // Power Limit Setting (40000ma at 5v = 8amps)
+int g_PowerLimit = 40000;         // Power Limit Setting (40000mW at 5v = 8amps)
 int Pattern = 9;                  // Pattern Selection- Default 9 AUTO / 50 For Testing
 int AutoPatternNumber = 16;       // For Auto Select Pattern Function, Start Pattern
 bool ButtonState = 1;             // For Button Active Low
@@ -59,6 +60,7 @@ void PowerTest();
 #include "Patterns.h"             // All Patterns
 #include "RazWifi.h"              // RaZ's Wifi Server
 #include "RaZMQTT.h"
+#include "ntptime.h"
 
 // UnComment out all for OLED display *********************************************************** 
 //#include <U8g2lib.h>            // Library for OLED on Heltec
@@ -107,9 +109,11 @@ void setup()
       }else {
         // Setup Wifi Server (true-AccessPointMode, false-StationPointMode)
         WifiSetup(wifiApMode);
+        // Setup MQTT and NTP if connected to Internet
         if(wifiApMode==false){
           mqttclient.setServer(mqtt_server, 1883);
           mqttclient.setCallback(callback);
+          initNtpTime();
         }                          
       }
   
