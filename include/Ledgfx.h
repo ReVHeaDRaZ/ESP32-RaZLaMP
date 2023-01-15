@@ -14,6 +14,11 @@
 
 #include <sys/time.h>                   // For time-of-day
 
+const TProgmemRGBPalette16 NightModeColors_p FL_PROGMEM =
+{
+  CRGB::DarkRed
+};
+
 // Utility Macros
 
 #define ARRAYSIZE(x) (sizeof(x)/sizeof(x[0]))
@@ -107,6 +112,10 @@ void ChangePalettePeriodically() {
     if(secondHand == 40)  { targetPalette = CloudColors_p; }
     if(secondHand == 50)  { targetPalette = PartyColors_p; }
   }
+  EVERY_N_MILLISECONDS(100) {
+    uint8_t maxChanges = 24; 
+    nblendPaletteTowardPalette(currentPalette, targetPalette, maxChanges);
+  }
 }
 
 void ChangePalettePeriodically2() {
@@ -121,6 +130,10 @@ void ChangePalettePeriodically2() {
     if(secondHand == 30)  { targetPalette = RainbowColors_p; }
     if(secondHand == 40)  { targetPalette = PartyColors_p; }
     if(secondHand == 50)  { targetPalette = ForestColors_p; }
+  }
+  EVERY_N_MILLISECONDS(100) {
+    uint8_t maxChanges = 24; 
+    nblendPaletteTowardPalette(currentPalette, targetPalette, maxChanges);
   }
 }
 

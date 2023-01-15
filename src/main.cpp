@@ -1,4 +1,4 @@
-//  RaZESP32ws2812b Array For Multiple Strips setup for verticle 4 Strip Lamp v2.2 
+//  RaZESP32ws2812b Array For Multiple Strips setup for verticle 4 Strip Lamp v2.3 
 //  ------------------------------------------------------------------------------------
 //  Added LetterBounce and Clock, tweaked fireworks velocity, Added switch to turn
 //  OFF WIFI and SoundReactive ON due to WIFI Power spikes, fixed Lightning Flickers
@@ -35,10 +35,10 @@ bool SoundReactive = 0;           // For Selecting Sound Reactive Patterns
 bool displayInfo = false;         // Display info on OLED/serial?
 bool wifiApMode = false;          // Use Wifi as an AccessPoint = true, as a StationPoint = false
 bool useMQTT = false;
-
-unsigned long currentMillis = 0;  // Used for timing between detections
-unsigned long previousMillis = 0;                             
-unsigned long interval = 10;      // 60ms interval seems reasonable
+bool drawVariant = false;         // To change from to pattern variants every cycle of patterns
+bool nightMode = false;
+int oldPattern = 9;               // To store last pattern when switching to nightmode
+int oldBrightness = 200;          // To store brightness when switching to nightmode
 
 // Clock Variables for Mins and Hrs
 byte clockCount0    = 8;
@@ -123,7 +123,7 @@ void setup()
 void loop() 
 {
   bool bLED = 0;
-  bool drawBlueFire = false;  // To change from red to blue fire every cycle of patterns
+  // Hue Variables for basic patterns
   uint8_t initialHue = 0;
   uint8_t initialHue2 = 0;
   const uint8_t deltaHue = 16;
@@ -164,7 +164,7 @@ void loop()
       if(ButtonState==LOW){
         Pattern++;
         if(Pattern>NUM_PATTERNS+1) {
-          drawBlueFire = !drawBlueFire;         // Change Fire Color every full pattern cycle
+          drawVariant = !drawVariant;         // Change to pattern variants every full pattern cycle
           Pattern=0;
         }
       }
@@ -188,29 +188,29 @@ void loop()
         for(int s = 1; s < NUM_STRIPS; s++) milliwatts += calculate_unscaled_power_mW(g_LEDs[s], NUM_LEDS);
       }
 
-    EVERY_N_MILLISECONDS(250)                   // Only Update stats every 250mSeconds using MacroHelper
-     {
-      /*
-      g_OLED.clearBuffer();
-      g_OLED.setCursor(0, g_lineHeight);
-      g_OLED.printf("FPS: %u", FastLED.getFPS());
-      g_OLED.setCursor(0, g_lineHeight * 2);
-      g_OLED.printf("Power: %u mW", milliwatts);
-      g_OLED.setCursor(0, g_lineheight * 3);
-      g_OLED.printf("Brightness at PowerLimit: %d", calculate_max_brightness_for_power_mW(g_Brightness, g_PowerLimit));
-      g_OLED.sendBuffer();
-      */
+      EVERY_N_MILLISECONDS(250)                   // Only Update stats every 250mSeconds using MacroHelper
+      {
+        /*
+        g_OLED.clearBuffer();
+        g_OLED.setCursor(0, g_lineHeight);
+        g_OLED.printf("FPS: %u", FastLED.getFPS());
+        g_OLED.setCursor(0, g_lineHeight * 2);
+        g_OLED.printf("Power: %u mW", milliwatts);
+        g_OLED.setCursor(0, g_lineheight * 3);
+        g_OLED.printf("Brightness at PowerLimit: %d", calculate_max_brightness_for_power_mW(g_Brightness, g_PowerLimit));
+        g_OLED.sendBuffer();
+        */
       
-      Serial.printf("FPS: %u", FastLED.getFPS());
-      Serial.println();
-      Serial.printf("Power: %u mW", milliwatts);
-      Serial.println();
-      Serial.printf("Brightness at PowerLimit: %d", calculate_max_brightness_for_power_mW(g_Brightness, g_PowerLimit));
-      Serial.println();
+        Serial.printf("FPS: %u", FastLED.getFPS());
+        Serial.println();
+        Serial.printf("Power: %u mW", milliwatts);
+        Serial.println();
+        Serial.printf("Brightness at PowerLimit: %d", calculate_max_brightness_for_power_mW(g_Brightness, g_PowerLimit));
+        Serial.println();
       
-     }
+      }
     }
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
   // Handle Pattern Selection and LEDs
     switch (Pattern)
@@ -221,7 +221,7 @@ void loop()
               AnalyseFFT();
               DrawBandsToStrip();
             } else{
-            if(!drawBlueFire){
+            if(!drawVariant){
                 DrawMarquee();
               }else DrawMarqueeMirrored();
             }
@@ -282,10 +282,6 @@ void loop()
               ScaleBands();
               Sndwave();
               ChangePalettePeriodically();
-              EVERY_N_MILLISECONDS(100) {
-                uint8_t maxChanges = 24; 
-                nblendPaletteTowardPalette(currentPalette, targetPalette, maxChanges);
-              }
             } else{ EVERY_N_MILLISECONDS(20){
               for (int s=0; s < NUM_STRIPS; s++){
               if (s==0) fill_rainbow(g_LEDs[s], NUM_LEDS, initialHue += hueDensity, deltaHue);
@@ -303,24 +299,20 @@ void loop()
               ScaleBands();
               BandFillNoise8();
               ChangePalettePeriodically();
-              EVERY_N_MILLISECONDS(100) {
-                uint8_t maxChanges = 24; 
-                nblendPaletteTowardPalette(currentPalette, targetPalette, maxChanges);
-              }
             } else {
               FastLED.clear();                      // Clear for Fire Effect
-              fire.DrawFire(drawBlueFire);
-              fire1.DrawFire(drawBlueFire);
-              fire2.DrawFire(drawBlueFire);
-              fire3.DrawFire(drawBlueFire);
+              fire.DrawFire(drawVariant);
+              fire1.DrawFire(drawVariant);
+              fire2.DrawFire(drawVariant);
+              fire3.DrawFire(drawVariant);
             }
             break;
           case 8:
               FastLED.clear();                      // Clear for Fire Effect
-              fireInwards.DrawFire(drawBlueFire);
-              fireInwards1.DrawFire(drawBlueFire);
-              fireInwards2.DrawFire(drawBlueFire);
-              fireInwards3.DrawFire(drawBlueFire);
+              fireInwards.DrawFire(drawVariant);
+              fireInwards1.DrawFire(drawVariant);
+              fireInwards2.DrawFire(drawVariant);
+              fireInwards3.DrawFire(drawVariant);
             break;
           case 9:
             EVERY_N_SECONDS(PATTERN_TIME)           // Auto Pattern Change
@@ -331,17 +323,17 @@ void loop()
                 if (AutoPatternNumber > 7) AutoPatternNumber = 0;
               }
               else if (AutoPatternNumber > NUM_PATTERNS) {
-                drawBlueFire = !drawBlueFire;
+                drawVariant = !drawVariant;
                 AutoPatternNumber = 0;
               }
             }
             break;
           case 10:
             FastLED.clear();                      // Clear for Fire Effect
-            fireOutwards.DrawFire(drawBlueFire);
-            fireOutwards1.DrawFire(drawBlueFire);
-            fireOutwards2.DrawFire(drawBlueFire);
-            fireOutwards3.DrawFire(drawBlueFire);
+            fireOutwards.DrawFire(drawVariant);
+            fireOutwards1.DrawFire(drawVariant);
+            fireOutwards2.DrawFire(drawVariant);
+            fireOutwards3.DrawFire(drawVariant);
             break;
           case 11:
             FastLED.clear();
@@ -367,45 +359,33 @@ void loop()
             break;
           case 17:
            ChangePalettePeriodically2();
-              EVERY_N_MILLISECONDS(100) {
-                uint8_t maxChanges = 24; 
-                nblendPaletteTowardPalette(currentPalette, targetPalette, maxChanges);
-              }
             EVERY_N_MILLISECONDS(10){
-              if(!drawBlueFire){
+              if(!drawVariant){
                 DrawRazBounceWithMelt();
               }else DrawRazBounceWithExplodeAll();
             }
             break;
           case 18:
-            ChangePalettePeriodically2();
-            EVERY_N_MILLISECONDS(100) {
-              uint8_t maxChanges = 24; 
-              nblendPaletteTowardPalette(currentPalette, targetPalette, maxChanges);
-            }
             FastLED.clear();
+            if(nightMode)
+              currentPalette = NightModeColors_p;
+            else
+              ChangePalettePeriodically2();
+            
             DrawClock();                        
             break;
           case 19:
             ChangePalettePeriodically2();
-              EVERY_N_MILLISECONDS(100) {
-                uint8_t maxChanges = 24; 
-                nblendPaletteTowardPalette(currentPalette, targetPalette, maxChanges);
-              }
             EVERY_N_MILLISECONDS(75){
-              if(!drawBlueFire){
+              if(!drawVariant){
                 DrawMaxSwirls();
               }else DrawSwirlsTogether();
             }
             break;
           case 20:
             ChangePalettePeriodically2();
-              EVERY_N_MILLISECONDS(100) {
-                uint8_t maxChanges = 24; 
-                nblendPaletteTowardPalette(currentPalette, targetPalette, maxChanges);
-              }
             EVERY_N_MILLISECONDS(75){
-              if(!drawBlueFire){
+              if(!drawVariant){
                 DrawSwirlsRandom();
               }else DrawAllSwirlPatterns();
             }
@@ -420,7 +400,7 @@ void loop()
             DrawMagma();
             break;
           case 24:
-            if(!drawBlueFire){
+            if(!drawVariant){
                 Hypnotic::draw();
               }else ColorPlasma();
             break;
@@ -441,7 +421,7 @@ void loop()
             comet2.DrawComet(1);
             comet3.DrawComet(2);
             comet4.DrawComet(3);
-      }
+    }
     
     // AUTO PATTERNS
     if(Pattern==9){
@@ -512,10 +492,6 @@ void loop()
               ScaleBands();
               Sndwave();
               ChangePalettePeriodically();
-              EVERY_N_MILLISECONDS(100) {
-                uint8_t maxChanges = 24; 
-                nblendPaletteTowardPalette(currentPalette, targetPalette, maxChanges);
-              }
             } else{ EVERY_N_MILLISECONDS(20){
               for (int s=0; s < NUM_STRIPS; s++){
               if (s==0) fill_rainbow(g_LEDs[s], NUM_LEDS, initialHue += hueDensity, deltaHue);
@@ -533,31 +509,27 @@ void loop()
               ScaleBands();
               BandFillNoise8();
               ChangePalettePeriodically();
-              EVERY_N_MILLISECONDS(100) {
-                uint8_t maxChanges = 24; 
-                nblendPaletteTowardPalette(currentPalette, targetPalette, maxChanges);
-              }
             } else {
               FastLED.clear();                      // Clear for Fire Effect
-              fire.DrawFire(drawBlueFire);
-              fire1.DrawFire(drawBlueFire);
-              fire2.DrawFire(drawBlueFire);
-              fire3.DrawFire(drawBlueFire);
+              fire.DrawFire(drawVariant);
+              fire1.DrawFire(drawVariant);
+              fire2.DrawFire(drawVariant);
+              fire3.DrawFire(drawVariant);
             }
             break;
           case 8:
             FastLED.clear();                      // Clear for Fire Effect
-            fireInwards.DrawFire(drawBlueFire);
-            fireInwards1.DrawFire(drawBlueFire);
-            fireInwards2.DrawFire(drawBlueFire);
-            fireInwards3.DrawFire(drawBlueFire);
+            fireInwards.DrawFire(drawVariant);
+            fireInwards1.DrawFire(drawVariant);
+            fireInwards2.DrawFire(drawVariant);
+            fireInwards3.DrawFire(drawVariant);
             break;
           case 9:
             FastLED.clear();                      // Clear for Fire Effect
-            fireOutwards.DrawFire(drawBlueFire);
-            fireOutwards1.DrawFire(drawBlueFire);
-            fireOutwards2.DrawFire(drawBlueFire);
-            fireOutwards3.DrawFire(drawBlueFire);
+            fireOutwards.DrawFire(drawVariant);
+            fireOutwards1.DrawFire(drawVariant);
+            fireOutwards2.DrawFire(drawVariant);
+            fireOutwards3.DrawFire(drawVariant);
             break;
           case 10:
             FastLED.clear();
@@ -583,44 +555,28 @@ void loop()
             break;
           case 16:
             ChangePalettePeriodically2();
-              EVERY_N_MILLISECONDS(100) {
-                uint8_t maxChanges = 24; 
-                nblendPaletteTowardPalette(currentPalette, targetPalette, maxChanges);
-              }
             EVERY_N_MILLISECONDS(10){
-              if(!drawBlueFire){
+              if(!drawVariant){
                 DrawRazBounceWithMelt();
               }else DrawRazBounceWithExplodeAll();
             }
             break;
           case 17:
             ChangePalettePeriodically2();
-            EVERY_N_MILLISECONDS(100) {
-              uint8_t maxChanges = 24; 
-              nblendPaletteTowardPalette(currentPalette, targetPalette, maxChanges);
-            }
             FastLED.clear();
-            if(drawBlueFire) DrawExplosion(); //Explosions every 2nd cycle
+            if(drawVariant) DrawExplosion(); //Explosions every 2nd cycle
             DrawClock();                        
             break;
           case 18:
             ChangePalettePeriodically2();
-              EVERY_N_MILLISECONDS(100) {
-                uint8_t maxChanges = 24; 
-                nblendPaletteTowardPalette(currentPalette, targetPalette, maxChanges);
-              }
             EVERY_N_MILLISECONDS(75){
               DrawMaxSwirls();
             }
             break;
           case 19:
             ChangePalettePeriodically2();
-              EVERY_N_MILLISECONDS(100) {
-                uint8_t maxChanges = 24; 
-                nblendPaletteTowardPalette(currentPalette, targetPalette, maxChanges);
-              }
             EVERY_N_MILLISECONDS(75){
-              if(!drawBlueFire){
+              if(!drawVariant){
                 DrawSwirlsRandom();
               }else DrawAllSwirlPatterns();
             }
@@ -635,7 +591,7 @@ void loop()
             DrawMagma();
             break;
           case 23:
-            if(!drawBlueFire){
+            if(!drawVariant){
                 Hypnotic::draw();
               }else ColorPlasma();
             break;
@@ -693,5 +649,4 @@ void ClockCounter(){
         clockCount100 = 0;
         clockCount1000++;
     }  
-    
 }

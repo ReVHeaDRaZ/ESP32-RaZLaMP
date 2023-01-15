@@ -7,7 +7,7 @@
 #include <WiFiManager.h>
 
 // Set these to your desired credentials if using AccessPoint Mode.
-const char *ssid = "RaZESP32LaMP";
+const char *ssid = "RaZLaMP";
 const char *password = "password";  // Add/change in WifiSetup() if you want to use a password. eg. WiFi.softAP(ssid,password)
  
 WiFiServer server(80);
@@ -234,6 +234,20 @@ void WifiCheck(){
               Serial.println(PatternName);
               Pattern = 26;
             }
+            else if (header.indexOf("GET /NIGHT") >= 0) {
+              if(!nightMode){
+                oldPattern = Pattern;
+                Pattern = 18;
+                oldBrightness = g_Brightness;
+                g_Brightness = 20;
+                nightMode = true;
+              }
+              else{
+                Pattern = oldPattern;
+                g_Brightness = oldBrightness;
+                nightMode = false;
+              }
+            }
             else if (header.indexOf("GET /DOWN") >= 0) {
               g_Brightness -= 20;
               if (g_Brightness < 20) g_Brightness = 20;  
@@ -290,7 +304,7 @@ void WifiCheck(){
             client.println(".button2 {background-color: #555555;}</style></head>");
             
             // Web Page Heading
-            client.println("<body><h1>RaZ's ESP32 LED Lamp</h1>");
+            client.println("<body><h1>RaZ Lamp</h1>");
             
             // Display current pattern and Set brightness  
             client.println("<p>Current Pattern- <b>" + PatternName + "</b></p>");
@@ -305,11 +319,16 @@ void WifiCheck(){
             
             // Display SoundReactive Button
             if (SoundReactive) {
-              client.println("<p><a href=\"/SOUNDREACT\"><button class=\"button smallbutton\">SoundReactive</button></a></p>");
+              client.println("<p><a href=\"/SOUNDREACT\"><button class=\"button smallbutton\">SoundReactive</button></a>");
             } else {
-              client.println("<p><a href=\"/SOUNDREACT\"><button class=\"button smallbutton button2\">SoundReactive</button></a></p>");
+              client.println("<p><a href=\"/SOUNDREACT\"><button class=\"button smallbutton button2\">SoundReactive</button></a>");
             }
-
+            // Display NightMode Button
+            if(nightMode){
+              client.println("<a href=\"/NIGHT\"><button class=\"button smallbutton\">NightMode</button></a></p>");
+            } else {
+              client.println("<a href=\"/NIGHT\"><button class=\"button smallbutton button2\">NightMode</button></a></p>");
+            }
             // Display If the Pattern is OFF or ON button       
             if(!SoundReactive){
             if (PatternName=="Marquee") {

@@ -70,11 +70,13 @@ void callback(char* topic, byte* message, unsigned int length) {
       PatternName = "Fire";
       Serial.println(PatternName);
       Pattern = 7;
+      drawVariant = false;
     }
     else if(messageTemp == "fireinward"){
       PatternName = "FireInward";
       Serial.println(PatternName);
       Pattern = 8;
+      drawVariant = false;
     }
     else if(messageTemp == "auto"){
       PatternName = "AUTO";
@@ -85,6 +87,7 @@ void callback(char* topic, byte* message, unsigned int length) {
       PatternName = "FireOutwards";
       Serial.println(PatternName);
       Pattern = 10;
+      drawVariant = false;
     }
     else if(messageTemp == "fireworks"){
       PatternName = "Fireworks";
@@ -115,6 +118,20 @@ void callback(char* topic, byte* message, unsigned int length) {
       PatternName = "ZigZag";
       Serial.println(PatternName);
       Pattern = 16;
+    }
+    else if(messageTemp == "night"){
+      if(!nightMode){
+          oldPattern = Pattern;
+          Pattern = 18;
+          oldBrightness = g_Brightness;
+          g_Brightness = 20;
+          nightMode = true;
+        }
+        else{
+          Pattern = oldPattern;
+          g_Brightness = oldBrightness;
+          nightMode = false;
+        }
     }
     
   }
