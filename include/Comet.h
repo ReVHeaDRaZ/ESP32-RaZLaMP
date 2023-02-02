@@ -107,3 +107,8 @@ void BeatPulseComet(uint8_t paletteNumber)
           g_LEDs[s][j] = g_LEDs[s][j].fadeToBlackBy(fadeAmt);
     }
   }
+
+Comet comet1(1,0,5);              // Create Comets (Direction, Position, Size)
+Comet comet2(-1,50,8);            // Create extra comets for extra strips
+Comet comet3(1,20,10);
+Comet comet4(-1,10,8);

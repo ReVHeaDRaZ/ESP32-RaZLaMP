@@ -187,3 +187,18 @@ public:
         }
     }
 };
+
+ClassicFireEffect fireOutwards(0, NUM_LEDS, 20, 100, 3, 2, false, true);  // Fire Outwards from Middle
+ClassicFireEffect fireOutwards1(1, NUM_LEDS, 20, 100, 3, 2, false, true); // for strip 2
+ClassicFireEffect fireOutwards2(2, NUM_LEDS, 20, 100, 3, 2, false, true); 
+ClassicFireEffect fireOutwards3(3, NUM_LEDS, 20, 100, 3, 2, false, true);
+ClassicFireEffect fireInwards(0, NUM_LEDS, 20, 100, 3, 2, true, true);    // Fire Inwards toward Middle
+ClassicFireEffect fireInwards1(1,NUM_LEDS, 20, 100, 3, 2, true, true);    // for strip 2
+ClassicFireEffect fireInwards2(2,NUM_LEDS, 20, 100, 3, 2, true, true);
+ClassicFireEffect fireInwards3(3,NUM_LEDS, 20, 100, 3, 2, true, true);
+//ClassicFireEffect fire(NUM_LEDS, 20, 100, 3, 4, false, false);          // Inwards from End
+ClassicFireEffect fire(0, NUM_LEDS, 30, 200, 10, 3, true, false);         // More Intense, Extra Sparking
+ClassicFireEffect fire1(1, NUM_LEDS, 30, 200, 10, 3, true, false);
+ClassicFireEffect fire2(2, NUM_LEDS, 30, 200, 10, 3, true, false);
+ClassicFireEffect fire3(3, NUM_LEDS, 30, 200, 10, 3, true, false);
+    

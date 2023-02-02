@@ -141,3 +141,6 @@ class BouncingBallEffect
         }
     }
 };
+
+BouncingBallEffect balls(NUM_LEDS, NUM_STRIPS, 100, false);               // Setup BouncingBalls Objects
+BouncingBallEffect ballsMirrored(NUM_LEDS, NUM_STRIPS, 100, true);        // Mirrored

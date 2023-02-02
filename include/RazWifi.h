@@ -162,7 +162,7 @@ void WifiCheck(){
             else if (header.indexOf("GET /9") >= 0) {
               PatternName = "AUTO";
               Serial.println(PatternName);
-              Pattern = 9;
+              autoPattern = !autoPattern;
             }
             else if (header.indexOf("GET /FIREOUT") >= 0) {
               PatternName = "FireOutwards";
@@ -446,7 +446,7 @@ void WifiCheck(){
             } else {
               client.println("<p><a href=\"/CRAZYBEES\"><button class=\"button button2\">CrazyBees</button></a></p>");
             }
-            if (PatternName=="AUTO") {
+            if (autoPattern==true) {
               client.println("<p><a href=\"/9\"><button class=\"button\">AUTO</button></a></p>");
             } else {
               client.println("<p><a href=\"/9\"><button class=\"button button2\">AUTO</button></a></p>");
