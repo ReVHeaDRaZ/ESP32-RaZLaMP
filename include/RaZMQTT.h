@@ -4,9 +4,10 @@
 #include "RazWifi.h"
 
 // Add your MQTT Broker IP address, username and password
-const char* mqtt_server = "yourbroker.com";
+const char* mqtt_server = "broker";
 const char* mqtt_username = "username";
 const char* mqtt_password = "password";
+const char* mqtt_ClientId = "RazLamp";
 
 WiFiClient RaZLampMQTTClient;
 PubSubClient mqttclient(RaZLampMQTTClient);
@@ -81,7 +82,7 @@ void callback(char* topic, byte* message, unsigned int length) {
     else if(messageTemp == "auto"){
       PatternName = "AUTO";
       Serial.println(PatternName);
-      Pattern = 9;
+      autoPattern = !autoPattern;
     }
     else if(messageTemp == "fireoutwards"){
       PatternName = "FireOutwards";
@@ -112,6 +113,7 @@ void callback(char* topic, byte* message, unsigned int length) {
     else if(messageTemp == "matrix"){
       PatternName = "Matrix";
       Serial.println(PatternName);
+      FastLED.clear();
       Pattern = 15;
     }
     else if(messageTemp == "zigzag"){
@@ -122,7 +124,7 @@ void callback(char* topic, byte* message, unsigned int length) {
     else if(messageTemp == "night"){
       if(!nightMode){
           oldPattern = Pattern;
-          Pattern = 18;
+          Pattern = 18; // Set to clock pattern
           oldBrightness = g_Brightness;
           g_Brightness = 20;
           nightMode = true;
@@ -145,10 +147,13 @@ void reconnect() {
         lastMQTTReconnectAttempt = now;
         Serial.print("Attempting MQTT connection...");
         // Attempt to connect
-        if (mqttclient.connect("RaZLampClient", mqtt_username, mqtt_password)) {
+        randomSeed(millis());
+        String tempClientId = mqtt_ClientId + String(random16());
+        if (mqttclient.connect(tempClientId.c_str(), mqtt_username, mqtt_password,"willtopic",1,false,"RaZLampDisconnected",true)) {
             Serial.println("connected");
             // Subscribe
             mqttclient.subscribe("razlamp/pattern");
+            mqttclient.publish("razlamp/pattern",tempClientId.c_str());
         } else {
         Serial.print("failed, rc=");
         Serial.print(mqttclient.state());
