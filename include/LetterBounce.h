@@ -340,14 +340,20 @@ void DrawClock(){       // Draw Clock using main.cpp global variables
 void DrawAutoOnText(){       // Draw "AUTO ON"
     int textPos=0;
     const char tempText[8] = "NO OTUA";
+    FastLED.clear();
     for(int i=0; i<8; i++)
         razNumbers.DrawLetter(tempText[i],textPos+((fontHeight+2)*i),CRGB::Red);
+    FastLED.delay(10);
+    delay(1000);
 }
 void DrawAutoOffText(){       // Draw "AUTO OFF"
     int textPos=0;
     const char tempText[9] = "FFO OTUA";
+    FastLED.clear();
     for(int i=0; i<9; i++)
         razNumbers.DrawLetter(tempText[i],textPos+((fontHeight+2)*i),CRGB::Red);
+    FastLED.delay(10);
+    delay(1000);
 }
 
 void DrawRazEffect(){           // Scrolls each letter to bottom after each other

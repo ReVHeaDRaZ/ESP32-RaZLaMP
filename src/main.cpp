@@ -37,7 +37,7 @@ bool SwitchState = 1;             // For Switch Active Low
 bool SoundReactive = 0;           // For Selecting Sound Reactive Patterns
 bool displayInfo = false;         // Display info on OLED/serial?
 bool wifiApMode = false;          // Use Wifi as an AccessPoint = true, as a StationPoint = false
-bool useMQTT = true;
+bool useMQTT = false;             // Set to true and edit RaZMQTT.h if you want to use MQTT
 bool drawVariant = false;         // To change from to pattern variants every cycle of patterns
 bool nightMode = false;
 int oldPattern = 9;               // To store last pattern when switching to nightmode
@@ -143,25 +143,22 @@ void loop()
       if(buttonState==LOW)
         buttonTime++;
 
-  if(buttonState==HIGH && buttonTime>buttonLongPressTime){ // Change AutoPattern state
-    buttonTime=0;
-    autoPattern=!autoPattern;
-    FastLED.clear();
-    if(autoPattern)
-      DrawAutoOnText();
-    else
-      DrawAutoOffText();
-    FastLED.delay(10);
-    delay(1000);
-  } else if(buttonState==HIGH && buttonTime>1){ // Increment Pattern number
-    buttonTime=0;
-    FastLED.clear();
-    Pattern++;
-    if(Pattern>NUM_PATTERNS){
-      Pattern = 0;
-      drawVariant = !drawVariant;
-    }
-  }
+      if(buttonState==HIGH && buttonTime>buttonLongPressTime){ // Change AutoPattern state
+        buttonTime=0;
+        autoPattern=!autoPattern;
+        if(autoPattern)
+          DrawAutoOnText();
+        else
+          DrawAutoOffText();
+      } else if(buttonState==HIGH && buttonTime>1){ // Increment Pattern number
+        buttonTime=0;
+        FastLED.clear();
+        Pattern++;
+        if(Pattern>NUM_PATTERNS){
+          Pattern = 0;
+          drawVariant = !drawVariant;
+        }
+      }
 
     } 
     
