@@ -202,7 +202,7 @@ namespace Snake {
   }
   
   void draw() {
-    uint8_t time = 70; // Speed
+    uint8_t time = 60; // Speed
     
     EVERY_N_MILLISECONDS(time) {
       for(uint8_t s = 0; s<NUM_STRIPS; s++)

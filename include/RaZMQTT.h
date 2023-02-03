@@ -4,9 +4,9 @@
 #include "RazWifi.h"
 
 // Add your MQTT Broker IP address, username and password
-const char* mqtt_server = "enter your broker";
-const char* mqtt_username = "enter your username";
-const char* mqtt_password = "enter your password";
+const char* mqtt_server = "broker";
+const char* mqtt_username = "username";
+const char* mqtt_password = "Password";
 const char* mqtt_ClientId = "RazLamp";
 
 WiFiClient RaZLampMQTTClient;
@@ -33,47 +33,56 @@ void callback(char* topic, byte* message, unsigned int length) {
     Serial.print("Changing pattern to ");
     
     if(messageTemp == "marquee"){
+      autoPattern = false;
       PatternName = "Marquee";
       Serial.println(PatternName);
       Pattern = 0;
     }
     else if(messageTemp == "twinkle"){
+      autoPattern = false;
       PatternName = "Twinkle";
       Serial.println(PatternName);
       Pattern = 1;
     }
     else if(messageTemp == "comet"){
+      autoPattern = false;
       PatternName = "Comet";
       Serial.println(PatternName);
       Pattern = 2;
     }
     else if(messageTemp == "pulsecomet"){
+      autoPattern = false;
       PatternName = "PulseComet";
       Serial.println(PatternName);
       Pattern = 3;
     }
     else if(messageTemp == "balls"){
+      autoPattern = false;
       PatternName = "Balls";
       Serial.println(PatternName);
       Pattern = 4;
     }
     else if(messageTemp == "ballsmirrored"){
+      autoPattern = false;
       PatternName = "BallsMirrored";
       Serial.println(PatternName);
       Pattern = 5;
     }
     else if(messageTemp == "rainbow"){
+      autoPattern = false;
       PatternName = "Rainbow";
       Serial.println(PatternName);
       Pattern = 6;
     }
     else if(messageTemp == "fire"){
+      autoPattern = false;
       PatternName = "Fire";
       Serial.println(PatternName);
       Pattern = 7;
       drawVariant = false;
     }
     else if(messageTemp == "fireinward"){
+      autoPattern = false;
       PatternName = "FireInward";
       Serial.println(PatternName);
       Pattern = 8;
@@ -86,43 +95,64 @@ void callback(char* topic, byte* message, unsigned int length) {
       FastLED.clear();
       if(autoPattern)
         DrawAutoOnText();
+      else
+        DrawAutoOffText();
     }
     else if(messageTemp == "fireoutwards"){
+      autoPattern = false;
       PatternName = "FireOutwards";
       Serial.println(PatternName);
       Pattern = 10;
       drawVariant = false;
     }
     else if(messageTemp == "fireworks"){
+      autoPattern = false;
       PatternName = "Fireworks";
       Serial.println(PatternName);
       Pattern = 11;
     }
     else if(messageTemp == "explosions"){
+      autoPattern = false;
       PatternName = "Explosions";
       Serial.println(PatternName);
       Pattern = 12;
     }
     else if(messageTemp == "ripples"){
+      autoPattern = false;
       PatternName = "Ripples";
       Serial.println(PatternName);
       Pattern = 13;
     }
     else if(messageTemp == "lightning"){
+      autoPattern = false;
       PatternName = "Lightning";
       Serial.println(PatternName);
       Pattern = 14;
     }
     else if(messageTemp == "matrix"){
+      autoPattern = false;
       PatternName = "Matrix";
       Serial.println(PatternName);
       FastLED.clear();
       Pattern = 15;
     }
     else if(messageTemp == "zigzag"){
+      autoPattern = false;
       PatternName = "ZigZag";
       Serial.println(PatternName);
       Pattern = 16;
+    }
+    else if(messageTemp == "lavalake"){
+      autoPattern = false;
+      PatternName = "LavaLake";
+      Serial.println(PatternName);
+      Pattern = 22;
+    }
+    else if(messageTemp == "clock"){
+      autoPattern = false;
+      PatternName = "Clock";
+      Serial.println(PatternName);
+      Pattern = 18;
     }
     else if(messageTemp == "night"){
       if(!nightMode){
@@ -152,12 +182,12 @@ void reconnect() {
         Serial.print("Attempting MQTT connection...");
         // Attempt to connect
         randomSeed(millis());
-        String tempClientId = mqtt_ClientId + String(random16());
-        if (mqttclient.connect(tempClientId.c_str(), mqtt_username, mqtt_password,"willtopic",1,false,"RaZLampDisconnected",true)) {
+        String tempClientId = mqtt_ClientId + String(esp_random());
+        if (mqttclient.connect(tempClientId.c_str(), mqtt_username, mqtt_password,"razlamp/status",1,false,"RaZLampDisconnected",true)) {
             Serial.println("connected");
             // Subscribe
             mqttclient.subscribe("razlamp/pattern");
-            mqttclient.publish("razlamp/pattern",tempClientId.c_str());
+            mqttclient.publish("razlamp/status",tempClientId.c_str());
         } else {
         Serial.print("failed, rc=");
         Serial.print(mqttclient.state());
