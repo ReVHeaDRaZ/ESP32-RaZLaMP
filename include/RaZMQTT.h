@@ -6,7 +6,7 @@
 // Add your MQTT Broker IP address, username and password
 const char* mqtt_server = "broker";
 const char* mqtt_username = "username";
-const char* mqtt_password = "Password";
+const char* mqtt_password = "password";
 const char* mqtt_ClientId = "RazLamp";
 
 WiFiClient RaZLampMQTTClient;
@@ -200,5 +200,6 @@ void reconnect() {
 void MQTTCheck(){
     if (!mqttclient.connected())
         reconnect();
-    mqttclient.loop();
+    if(WiFi.isConnected())
+      mqttclient.loop();
 }

@@ -236,6 +236,10 @@ struct LetterBounce {
         }else {
             done = 1;
             yPos = NUM_LEDS-fontHeight;
+        }
+        if(letter==' ' || letter==0 || letter==160){    // sets ' ' to done
+            done = 1;
+            yPos = NUM_LEDS-fontHeight;
         }     
     }
 
@@ -257,6 +261,10 @@ struct LetterBounce {
                 done = 1;
                 yPos = NUM_LEDS-fontHeight;
             }
+        }
+        if(letter==' ' || letter==0 || letter==160){    // sets ' ' to done
+            done = 1;
+            yPos = NUM_LEDS-fontHeight;
         }
     }
 
@@ -552,6 +560,6 @@ void SetLetters(){
     //Reset all letters
     for(int i=0; i<maxLetters; i++) letters[i].letter=0;
     //Then set from textString (Set on WIFI Server)
-    for(int i=0; i<=strlen(textString); i++) letters[i].letter = textString[i];
+    for(int i=0; i<strlen(textString); i++) letters[i].letter = textString[i];
     for(int i=0; i<8; i++) Serial.print(textString[i]);
 }

@@ -163,6 +163,11 @@ void WifiCheck(){
               PatternName = "AUTO";
               Serial.println(PatternName);
               autoPattern = !autoPattern;
+              FastLED.clear();
+              if(autoPattern)
+                DrawAutoOnText();
+              else
+                DrawAutoOffText();
             }
             else if (header.indexOf("GET /FIREOUT") >= 0) {
               PatternName = "FireOutwards";

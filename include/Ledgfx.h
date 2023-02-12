@@ -156,3 +156,9 @@ void drawPixelXYF(float x, float y, CRGB color)
     g_LEDs[(int)round(x)][yn] = clr; //Added round x for small width matrix
   }
 }
+
+void drawPixelXY(uint8_t x, uint8_t y, CRGB color)
+{
+  if (x < 0 || x > (NUM_STRIPS - 1) || y < 0 || y > (NUM_LEDS - 1)) return;
+    g_LEDs[x][y] += color;
+}

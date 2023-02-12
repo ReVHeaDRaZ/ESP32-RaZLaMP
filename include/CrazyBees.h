@@ -44,11 +44,11 @@ void DrawCrazyBees() {
   if(round(beePosY[i]/4)<round(beeAimY[i]/4)){ beePosY[i]+=beeSpeed;}
   if(round(beePosX[i]/4)==round(beeAimX[i]/4) && round(beePosY[i]/4)==round(beeAimY[i]/4)){beeAimchange(i);} 
   
-  g_LEDs[beePosX[i]/4][beePosY[i]/4] += CHSV(beeHue[i],60,255);
-  g_LEDs[beeAimX[i]/4+1][beeAimY[i]/4] += CHSV(beeHue[i],255,255);
-  g_LEDs[beeAimX[i]/4][beeAimY[i]/4+1] += CHSV(beeHue[i],255,255);
-  g_LEDs[beeAimX[i]/4-1][beeAimY[i]/4] += CHSV(beeHue[i],255,255);
-  g_LEDs[beeAimX[i]/4][beeAimY[i]/4-1] += CHSV(beeHue[i],255,255);
+  drawPixelXY(beePosX[i]/4,beePosY[i]/4,CHSV(beeHue[i],60,255));
+  drawPixelXY(beeAimX[i]/4+1,beeAimY[i]/4,CHSV(beeHue[i],255,255));
+  drawPixelXY(beeAimX[i]/4,beeAimY[i]/4+1,CHSV(beeHue[i],255,255));
+  drawPixelXY(beeAimX[i]/4-1,beeAimY[i]/4,CHSV(beeHue[i],255,255));
+  drawPixelXY(beeAimX[i]/4,beeAimY[i]/4-1,CHSV(beeHue[i],255,255));
   } 
   for(byte s=0; s<NUM_STRIPS;s++){blur1d(g_LEDs[s], NUM_LEDS, 10);}
 }
