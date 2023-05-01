@@ -4,7 +4,7 @@
 #include "RazWifi.h"
 
 // Add your MQTT Broker IP address, username and password
-const char* mqtt_server = "broker";
+const char* mqtt_server = "server";
 const char* mqtt_username = "username";
 const char* mqtt_password = "password";
 const char* mqtt_ClientId = "RazLamp";
@@ -89,6 +89,11 @@ void callback(char* topic, byte* message, unsigned int length) {
       drawVariant = false;
     }
     else if(messageTemp == "auto"){
+      if(nightMode==true){
+        Pattern = oldPattern;
+        g_Brightness = oldBrightness;
+        nightMode = false;
+      }
       PatternName = "AUTO";
       Serial.println(PatternName);
       autoPattern = !autoPattern;

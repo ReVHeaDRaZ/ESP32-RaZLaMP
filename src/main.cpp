@@ -359,8 +359,9 @@ void loop()
            ChangePalettePeriodically2();
             EVERY_N_MILLISECONDS(10){
               if(!drawVariant){
-                DrawRazBounceWithMelt();
-              }else DrawRazBounceWithExplodeAll();
+                DrawRazBounceWithMeltAll();
+              }else 
+              DrawRazBounceWithExplodeAll();
             }
             break;
           case 18:
