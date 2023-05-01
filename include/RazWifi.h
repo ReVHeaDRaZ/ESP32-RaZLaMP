@@ -160,6 +160,11 @@ void WifiCheck(){
               Pattern = 8;
             }
             else if (header.indexOf("GET /9") >= 0) {
+              if(nightMode==true){
+                Pattern = oldPattern;
+                g_Brightness = oldBrightness;
+                nightMode = false;
+              }
               PatternName = "AUTO";
               Serial.println(PatternName);
               autoPattern = !autoPattern;

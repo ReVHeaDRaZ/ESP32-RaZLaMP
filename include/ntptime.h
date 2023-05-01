@@ -2,8 +2,9 @@
 #include <Arduino.h>
 #include "time.h"
 
+#define TZ_Australia_Melbourne PSTR("AEST-10AEDT,M10.1.0,M4.1.0/3")
 const char* ntpServer = "pool.ntp.org";
-const long  gmtOffset_sec = 39600;      // Melbourne UTC+11
+const long  gmtOffset_sec = 36000;      // Melbourne UTC+10
 const int   daylightOffset_sec = 3600;  // 1 hour DST
 struct tm timeinfo;
 
@@ -25,7 +26,8 @@ void setRazClockTime(){
 
 void initNtpTime(){
   Serial.println("Setting up time");
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);    // First connect to NTP server
+  //configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);    // First connect to NTP server
+  configTzTime(TZ_Australia_Melbourne, ntpServer);
   if(!getLocalTime(&timeinfo)){
     Serial.println("  Failed to obtain time");
     return;

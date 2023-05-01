@@ -472,6 +472,37 @@ void DrawRazBounceWithExplodeAll(){               // Same as above with bounce, 
         currentLetter=0;
     }          
 }
+
+void DrawRazBounceWithMeltAll(){               // Same as above with bounce, palette
+    static int count = 300;                     // and explode particles
+    static int currentLetter = 0;
+    
+    if(!letters[currentLetter].done){
+        FastLED.clear();
+        for(int i=0; i<=currentLetter-1;i++) letters[i].DrawLetter(letters[i].letter, letters[i].endPos, ColorFromPalette(currentPalette,letters[i].endPos*4,255,currentBlending));
+        letters[currentLetter].DrawLetterBounce(ColorFromPalette(currentPalette,letters[currentLetter].yPos*4,255,currentBlending));
+        if(letters[currentLetter].letter==0) currentLetter = maxLetters-1; // If end of string
+    }else if(currentLetter<maxLetters-1) currentLetter++;
+
+      else{ if(count==300){ 
+            letters[currentLetter].DrawLetter(letters[currentLetter].letter, letters[currentLetter].endPos, ColorFromPalette(currentPalette,letters[currentLetter].endPos*4,255,currentBlending));
+            for(int i=0; i<maxLetters; i++) letters[i].InitParticles();
+          }
+        FastLED.clear();
+        
+        for(int i=currentLetter; i>0; i--){
+            letters[i].DrawParticlesGradually();
+        }    
+        count--;
+      }
+    
+    if(count<=0){
+        count = 300;
+        for(int i=0; i<maxLetters; i++) letters[i].done=0;
+        currentLetter=0;
+    }          
+}
+
 void DrawRazBounceWithExplode(){               // Same as above with bounce, palette
     static int count = 350;                     // and explode particles
     static int currentLetter = 0;
