@@ -65,7 +65,7 @@ void WifiSetup(bool AccessPointMode) {
     if (!wifiManager.autoConnect("RaZLaMPWiFiSetupAP")) {
       Serial.println("failed to connect and hit timeout");
       //can reset and try again, or maybe put it to deep sleep
-      //ESP.restart();
+      ESP.restart();
       delay(1000);
     }
     Serial.print("IP address: ");

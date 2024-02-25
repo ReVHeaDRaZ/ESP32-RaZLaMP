@@ -22,7 +22,6 @@ class Asnake {
   void die() {
     dead = true;
     headX = random(0, NUM_STRIPS);
-    
     headY = random(0, NUM_LEDS);
     snakeLength = 3;
     direction = random(0, 3);
@@ -202,7 +201,7 @@ namespace Snake {
   }
   
   void draw() {
-    uint8_t time = 60; // Speed
+    uint8_t time = 50; // Speed
     
     EVERY_N_MILLISECONDS(time) {
       for(uint8_t s = 0; s<NUM_STRIPS; s++)
