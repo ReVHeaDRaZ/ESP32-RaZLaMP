@@ -26,7 +26,6 @@ void setRazClockTime(){
 
 void initNtpTime(){
   Serial.println("Setting up time");
-  //configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);    // First connect to NTP server
   configTzTime(TZ_Australia_Melbourne, ntpServer);
   if(!getLocalTime(&timeinfo)){
     Serial.println("  Failed to obtain time");
@@ -43,4 +42,12 @@ void printLocalTime(){
     return;
   }
   Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S zone %Z %z ");
+}
+
+bool getLocalTime(){
+  if(!getLocalTime(&timeinfo)){
+    Serial.println("  Failed to obtain time");
+    return false;
+  }
+  return true;
 }

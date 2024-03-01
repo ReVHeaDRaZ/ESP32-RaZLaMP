@@ -133,7 +133,12 @@ void loop()
   // Infinite Loop--------------------
   while(true)
   {
-    EVERY_N_SECONDS(60) ClockCounter();         // Update Clock every minute
+    EVERY_N_SECONDS(60){    // Update Clock every minute
+      if(getLocalTime()){   // Try update time from NTP
+        setRazClockTime();
+      }else
+        ClockCounter();     // Otherwise increment time manually
+    }
 
     bLED = !bLED;                               // Blink the Onboard LED off and on every loop
     digitalWrite(LED_BUILTIN, bLED);            // for basic framerate indication
