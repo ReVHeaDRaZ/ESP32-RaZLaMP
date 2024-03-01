@@ -4,9 +4,9 @@
 #include "RazWifi.h"
 
 // Add your MQTT Broker IP address, username and password
-const char* mqtt_server = "razstuff.mywire.org";
-const char* mqtt_username = "raz";
-const char* mqtt_password = "Pantera1981";
+const char* mqtt_server = "server";
+const char* mqtt_username = "username";
+const char* mqtt_password = "Password";
 const char* mqtt_ClientId = "RazLamp";
 
 WiFiClient RaZLampMQTTClient;
