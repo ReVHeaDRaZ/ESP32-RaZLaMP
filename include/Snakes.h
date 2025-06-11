@@ -152,7 +152,7 @@ class Asnake {
       snakeIndices[snakeLength].y = headY;
       if (fruitX == headX && fruitY == headY) {
         // we got it!
-        step = step * 0.9;
+        step = step * 0.95;
         
         celebrate();
         
@@ -181,7 +181,7 @@ class Asnake {
   int celebrates = 0;
   
   void celebrate() {
-    celebrates = 3; // How long to celebrate
+    celebrates = 2; // How long to celebrate
   }
 };
 
@@ -201,7 +201,7 @@ namespace Snake {
   }
   
   void draw() {
-    uint8_t time = 50; // Speed
+    uint8_t time = 40; // Speed
     
     EVERY_N_MILLISECONDS(time) {
       for(uint8_t s = 0; s<NUM_STRIPS; s++)
