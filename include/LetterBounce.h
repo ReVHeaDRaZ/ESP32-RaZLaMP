@@ -23,8 +23,8 @@ struct LetterBounce {
     byte  letter;               // To choose letter to be drawn
     
     float vel       = -1;
-    float gravity   = -0.1;
-    float dampen    = -0.95;
+    float gravity   = -0.12;
+    float dampen    = -0.90;
     bool  done      = 0;        // If the letter has finished bouncing
     int   particleRowTime = 0;  // For timing when rows of particles errode
 
