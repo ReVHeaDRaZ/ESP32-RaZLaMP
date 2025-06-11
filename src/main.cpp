@@ -244,7 +244,7 @@ void loop()
             AnalyseFFT();
             DrawRipplesToBeat();
             } else{
-            DrawTwinkle2();
+            DrawTwinkleFade();
             }
             break;
           case 2:

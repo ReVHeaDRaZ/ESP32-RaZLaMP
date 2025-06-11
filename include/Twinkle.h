@@ -53,3 +53,12 @@ void DrawTwinkle2()
     }
     delay(20);       
 }
+
+void DrawTwinkleFade()
+{
+    for(int s=0; s<NUM_STRIPS; s++){
+        g_LEDs[s][random(NUM_LEDS)] = TwinkleColors[random(0, NUM_COLORS)];
+        fadeToBlackBy(g_LEDs[s], NUM_LEDS, 10);
+    }
+    delay(20);       
+}
