@@ -10,6 +10,13 @@
     #define LED_PIN4      12
     #define BUTTON_PIN    13        // Button Pin for Pattern Change
     #define SWITCH_PIN    23        // Switch Pin for WIFI OFF and Sound Reactive mode
+#elif defined(LAMP_SINGLE)
+    #define USE_OLED      0         // Change to a 1 if you have ESP32 with OLED Screen
+    #define NUM_STRIPS 1
+    #define NUM_LEDS_PER_STRIP 240
+    #define LED_PIN1 26
+    #define BUTTON_PIN    13        // Button Pin for Pattern Change
+    #define SWITCH_PIN    23        // Switch Pin for WIFI OFF and Sound Reactive mode
 #else
     #error "No lamp layout defined!"
 #endif

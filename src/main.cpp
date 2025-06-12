@@ -65,19 +65,16 @@ void setup()
   FastLED.setBrightness(g_Brightness);                                    // and set brightness from varible
   FastLED.setMaxPowerInMilliWatts(g_PowerLimit);                          // Set Max Power
   
-  switchState=digitalRead(SWITCH_PIN);        // Read Switch pin and if LOW
-  if(switchState==LOW){
-        SoundReactive     = 1;
-      }else {
-        // Setup Wifi Server (true-AccessPointMode, false-StationPointMode)
-        WifiSetup(wifiApMode);
-        // Setup MQTT and NTP if connected to Internet
-        if(wifiApMode==false){
-          mqttclient.setServer(mqtt_server, 1883);
-          mqttclient.setCallback(callback);
-          initNtpTime();
-        }                          
-      }
+  if(!SoundReactive){
+    // Setup Wifi Server (true-AccessPointMode, false-StationPointMode)
+    WifiSetup(wifiApMode);
+    // Setup MQTT and NTP if connected to Internet
+    if(wifiApMode==false){
+      mqttclient.setServer(mqtt_server, 1883);
+      mqttclient.setCallback(callback);
+      initNtpTime();
+    }                          
+  }
   
 }
 

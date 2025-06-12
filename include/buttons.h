@@ -10,6 +10,8 @@ bool switchState = HIGH;             // For Switch Active Low
 void setupButtons(){
     pinMode(BUTTON_PIN, INPUT_PULLUP);
     pinMode(SWITCH_PIN, INPUT_PULLUP);
+
+    handleButtons();
 }
 
 void handleButtons(){
@@ -20,7 +22,6 @@ void handleButtons(){
         SoundReactive = 1;
     else
         SoundReactive = 0;
-    
 
     EVERY_N_MILLIS(10) {
       if(buttonState==LOW)
