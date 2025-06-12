@@ -70,10 +70,10 @@ int g_lineHeight = 0;
 void setup() 
 {
   pinMode(LED_BUILTIN, OUTPUT);
-
-  for(u_int8_t i = 0; i < NUM_STRIPS; i++){
-    pinMode(LED_PINS[i], OUTPUT);
-  }
+  pinMode(LED_PIN1, OUTPUT);
+  pinMode(LED_PIN2, OUTPUT);
+  pinMode(LED_PIN3, OUTPUT);
+  pinMode(LED_PIN4, OUTPUT);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   pinMode(SWITCH_PIN, INPUT_PULLUP);
  
@@ -90,9 +90,10 @@ void setup()
   g_lineHeight = g_OLED.getFontAscent() - g_OLED.getFontDescent();        // Descent is a negative number so we add it to the total
   #endif
 
-  for(u_int8_t i = 0; i < NUM_STRIPS; i++)
-    FastLED.addLeds<WS2812B, LED_PINS[0], GRB>(g_LEDs[0], NUM_LEDS);      // Add our LED strips to the FastLED library
-  
+  FastLED.addLeds<WS2812B, LED_PIN1, GRB>(g_LEDs[0], NUM_LEDS);           // Add our LED strips to the FastLED library
+  FastLED.addLeds<WS2812B, LED_PIN2, GRB>(g_LEDs[1], NUM_LEDS);
+  FastLED.addLeds<WS2812B, LED_PIN3, GRB>(g_LEDs[2], NUM_LEDS);
+  FastLED.addLeds<WS2812B, LED_PIN4, GRB>(g_LEDs[3], NUM_LEDS);
   FastLED.setBrightness(g_Brightness);                                    // and set brightness from varible
   FastLED.setMaxPowerInMilliWatts(g_PowerLimit);                          // Set Max Power
   

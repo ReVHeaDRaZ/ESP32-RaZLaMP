@@ -1,12 +1,15 @@
 #pragma once
 
 #ifdef LAMP_VERTICAL_4
-    #define USE_OLED      0                                 // Change to a 1 if you have ESP32 with OLED Screen
+    #define USE_OLED      0         // Change to a 1 if you have ESP32 with OLED Screen
     #define NUM_STRIPS    4
     #define NUM_LEDS      72  
-    const uint8_t LED_PINS[NUM_STRIPS] = {26, 27, 14, 12};  // Define your pins for each strip
-    #define BUTTON_PIN    13                                // Button Pin for Pattern Change
-    #define SWITCH_PIN    23                                // Switch Pin for WIFI OFF and Sound Reactive mode
+    #define LED_PIN1      26        // Define your pins for each strip
+    #define LED_PIN2      27
+    #define LED_PIN3      14
+    #define LED_PIN4      12
+    #define BUTTON_PIN    13        // Button Pin for Pattern Change
+    #define SWITCH_PIN    23        // Switch Pin for WIFI OFF and Sound Reactive mode
 #else
     #error "No lamp layout defined!"
 #endif
