@@ -12,15 +12,7 @@
 #define FASTLED_INTERNAL          // Supress Build Banner
 #include <FastLED.h>
 
-#define USE_OLED      0   // Change to a 1 if you have ESP32 with OLED Screen
-#define NUM_LEDS      72  // FastLED definitions
-#define NUM_STRIPS    4
-#define LED_PIN       26  //12 Reverse Order
-#define LED_PIN2      27  //14
-#define LED_PIN3      14  //27
-#define LED_PIN4      12  //26
-#define BUTTON_PIN    13          // Button Pin for Pattern Change
-#define SWITCH_PIN    23          // Switch Pin for WIFI OFF and Sound Reactive mode
+#include "config.h"
 #define NUM_PATTERNS  27          // Number of Patterns
 #define PATTERN_TIME  30          // Time before Pattern Change
 
@@ -78,16 +70,17 @@ int g_lineHeight = 0;
 void setup() 
 {
   pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(LED_PIN, OUTPUT);
-  pinMode(LED_PIN2, OUTPUT);
-  pinMode(LED_PIN3, OUTPUT);
-  pinMode(LED_PIN4, OUTPUT);
+
+  for(u_int8_t i = 0; i < NUM_STRIPS; i++){
+    pinMode(LED_PINS[i], OUTPUT);
+  }
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   pinMode(SWITCH_PIN, INPUT_PULLUP);
  
   Serial.begin(115200);
   while (!Serial) { }
   Serial.println("ESP32 Startup");
+  
   sampling_period_us = round(1000000 * (1.0 / SAMPLING_FREQ)); // For FFT
  
   #if USE_OLED
@@ -97,10 +90,9 @@ void setup()
   g_lineHeight = g_OLED.getFontAscent() - g_OLED.getFontDescent();        // Descent is a negative number so we add it to the total
   #endif
 
-  FastLED.addLeds<WS2812B, LED_PIN, GRB>(g_LEDs[0], NUM_LEDS);            // Add our LED strip to the FastLED library
-  FastLED.addLeds<WS2812B, LED_PIN2, GRB>(g_LEDs[1], NUM_LEDS);
-  FastLED.addLeds<WS2812B, LED_PIN3, GRB>(g_LEDs[2], NUM_LEDS);
-  FastLED.addLeds<WS2812B, LED_PIN4, GRB>(g_LEDs[3], NUM_LEDS);
+  for(u_int8_t i = 0; i < NUM_STRIPS; i++)
+    FastLED.addLeds<WS2812B, LED_PINS[0], GRB>(g_LEDs[0], NUM_LEDS);      // Add our LED strips to the FastLED library
+  
   FastLED.setBrightness(g_Brightness);                                    // and set brightness from varible
   FastLED.setMaxPowerInMilliWatts(g_PowerLimit);                          // Set Max Power
   
