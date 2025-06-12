@@ -1,4 +1,4 @@
-//  RaZESP32ws2812b Array For Multiple Strips setup for verticle 4 Strip Lamp v2.3 
+//  RaZESP32ws2812b Array For Multiple Strips setup for verticle 4 Strip Lamp v2.4 
 //  ------------------------------------------------------------------------------------
 //  Added LetterBounce and Clock, tweaked fireworks velocity, Added switch to turn
 //  OFF WIFI and SoundReactive ON due to WIFI Power spikes, fixed Lightning Flickers
@@ -26,23 +26,9 @@ CRGB g_LEDs[NUM_STRIPS][NUM_LEDS] = {0};      // Frame buffer for FastLED
 #include "ntptime.h"
 #include "buttons.h"
 
-#if USE_OLED 
-#include <U8g2lib.h>            // Library for OLED on Heltec
-#define OLED_CLOCK  15          // Pins for the OLED display
-#define OLED_DATA   4
-#define OLED_RESET  16
-U8G2_SSD1306_128X64_NONAME_F_HW_I2C g_OLED(U8G2_R2, OLED_RESET, OLED_CLOCK, OLED_DATA);
-int g_lineHeight = 0;
-#endif 
-
-
 void setup() 
 {
-  pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(LED_PIN1, OUTPUT);
-  pinMode(LED_PIN2, OUTPUT);
-  pinMode(LED_PIN3, OUTPUT);
-  pinMode(LED_PIN4, OUTPUT);
+  setupLeds();
   setupButtons();
  
   Serial.begin(115200);
@@ -50,20 +36,6 @@ void setup()
   Serial.println("ESP32 Startup");
   
   sampling_period_us = round(1000000 * (1.0 / SAMPLING_FREQ)); // For FFT
- 
-  #if USE_OLED
-  g_OLED.begin();
-  g_OLED.clear();
-  g_OLED.setFont(u8g2_font_profont15_tf);
-  g_lineHeight = g_OLED.getFontAscent() - g_OLED.getFontDescent();        // Descent is a negative number so we add it to the total
-  #endif
-
-  FastLED.addLeds<WS2812B, LED_PIN1, GRB>(g_LEDs[0], NUM_LEDS);           // Add our LED strips to the FastLED library
-  FastLED.addLeds<WS2812B, LED_PIN2, GRB>(g_LEDs[1], NUM_LEDS);
-  FastLED.addLeds<WS2812B, LED_PIN3, GRB>(g_LEDs[2], NUM_LEDS);
-  FastLED.addLeds<WS2812B, LED_PIN4, GRB>(g_LEDs[3], NUM_LEDS);
-  FastLED.setBrightness(g_Brightness);                                    // and set brightness from varible
-  FastLED.setMaxPowerInMilliWatts(g_PowerLimit);                          // Set Max Power
   
   if(!SoundReactive){
     // Setup Wifi Server (true-AccessPointMode, false-StationPointMode)
@@ -86,16 +58,16 @@ void loop()
   // Infinite Loop--------------------
   while(true)
   {
+    bLED = !bLED;                               // Blink the Onboard LED off and on every loop
+    digitalWrite(LED_BUILTIN, bLED);            // for basic framerate indication
+
     EVERY_N_SECONDS(60){    // Update Clock every minute
       if(getLocalTime()){   // Try update time from NTP
         setRazClockTime();
       }else
         ClockCounter();     // Otherwise increment time manually
     }
-
-    bLED = !bLED;                               // Blink the Onboard LED off and on every loop
-    digitalWrite(LED_BUILTIN, bLED);            // for basic framerate indication
-    
+ 
     handleButtons();
         
     if(!SoundReactive){
@@ -105,254 +77,10 @@ void loop()
     }
 
     // Handle OLED drawing and Serial Monitor
-    //-------------------------------------------------------------------------------
-    if(displayInfo==true){
-      uint32_t milliwatts = calculate_unscaled_power_mW(g_LEDs[0], NUM_LEDS);  // How much power are we asking for?
-      if (NUM_STRIPS>1){
-        for(int s = 1; s < NUM_STRIPS; s++) milliwatts += calculate_unscaled_power_mW(g_LEDs[s], NUM_LEDS);
-      }
+    displayInfomation();
 
-      EVERY_N_MILLISECONDS(250)                   // Only Update stats every 250mSeconds using MacroHelper
-      {
-        #if USE_OLED
-        g_OLED.clearBuffer();
-        g_OLED.setCursor(0, g_lineHeight);
-        g_OLED.printf("FPS: %u", FastLED.getFPS());
-        g_OLED.setCursor(0, g_lineHeight * 2);
-        g_OLED.printf("Power: %u mW", milliwatts);
-        g_OLED.setCursor(0, g_lineheight * 3);
-        g_OLED.printf("Brightness at PowerLimit: %d", calculate_max_brightness_for_power_mW(g_Brightness, g_PowerLimit));
-        g_OLED.sendBuffer();
-        #endif
-      
-        Serial.printf("FPS: %u", FastLED.getFPS());
-        Serial.println();
-        Serial.printf("Power: %u mW", milliwatts);
-        Serial.println();
-        Serial.printf("Brightness at PowerLimit: %d", calculate_max_brightness_for_power_mW(g_Brightness, g_PowerLimit));
-        Serial.println();
-      
-      }
-    }
-    //------------------------------------------------------------------------------
-
-  // Handle Pattern Selection and LEDs
-    if(autoPattern){
-      EVERY_N_SECONDS(PATTERN_TIME)           // Auto Pattern Change
-      {
-        FastLED.clear();
-        Pattern++;
-        if(SoundReactive){
-          if (Pattern > 7) Pattern = 0;
-        }
-        else if (Pattern > NUM_PATTERNS) {
-          drawVariant = !drawVariant;
-          Pattern = 0;
-        }
-      }
-    }
-    
-    switch (Pattern)
-    {
-          case 0:
-            if(SoundReactive){
-              SampleAudio();
-              AnalyseFFT();
-              DrawBandsToStrip();
-            } else{
-            if(!drawVariant){
-                DrawMarquee();
-              }else DrawMarqueeMirrored();
-            }
-            break;
-          case 1:
-            if(SoundReactive){
-            SampleAudio();
-            AnalyseFFT();
-            DrawRipplesToBeat();
-            } else{
-            DrawTwinkleFade();
-            }
-            break;
-          case 2:
-            if(SoundReactive){
-            SampleAudio();
-            AnalyseFFT();
-            DrawRipplesToBands(2);
-            } else{
-            comet1.DrawComet(0);    // DrawComet(StripNumber)
-            comet2.DrawComet(1);
-            comet3.DrawComet(2);
-            comet4.DrawComet(3);
-            delay(25);
-            }
-            break;
-          case 3:
-            if(SoundReactive){
-              SampleAudio();
-              AnalyseFFT();
-              DrawRipplesToBands(3);
-            } else{
-              PulseComet();
-            }
-            break;
-          case 4:
-            if(SoundReactive){
-              SampleAudio();
-              AnalyseFFT();
-              BeatPulseComet(0);      // Rainbow Beat Comet
-            } else{
-              balls.Draw(0);
-            }
-            break;
-          case 5:
-            if(SoundReactive){
-              SampleAudio();
-              AnalyseFFT();
-              BeatPulseComet(1);      // Heat Beat Comet
-            } else{
-              ballsMirrored.Draw(0);
-            }
-            break;
-          case 6:
-            if(SoundReactive){
-              SampleAudio();
-              AnalyseFFT();
-              ScaleBands();
-              Sndwave();
-              ChangePalettePeriodically();
-            } else{ EVERY_N_MILLISECONDS(20){
-              for (int s=0; s < NUM_STRIPS; s++){
-              if (s==0) fill_rainbow(g_LEDs[s], NUM_LEDS, initialHue += hueDensity, deltaHue);
-              if (s==1) fill_rainbow(g_LEDs[s], NUM_LEDS, initialHue2 -= hueDensity, deltaHue);
-              if (s==2) fill_rainbow(g_LEDs[s], NUM_LEDS, initialHue += hueDensity, deltaHue);
-              if (s==3) fill_rainbow(g_LEDs[s], NUM_LEDS, initialHue2 -= hueDensity, deltaHue);
-              }
-              }
-            }
-            break;
-          case 7:
-            if(SoundReactive){
-              SampleAudio();
-              AnalyseFFT();
-              ScaleBands();
-              BandFillNoise8();
-              ChangePalettePeriodically();
-            } else {
-              FastLED.clear();                      // Clear for Fire Effect
-              fire.DrawFire(drawVariant);
-              fire1.DrawFire(drawVariant);
-              fire2.DrawFire(drawVariant);
-              fire3.DrawFire(drawVariant);
-            }
-            break;
-          case 8:
-              FastLED.clear();                      // Clear for Fire Effect
-              fireInwards.DrawFire(drawVariant);
-              fireInwards1.DrawFire(drawVariant);
-              fireInwards2.DrawFire(drawVariant);
-              fireInwards3.DrawFire(drawVariant);
-            break;
-          case 9:
-            // Where auto pattern function was
-            // Now empty ready for another pattern
-            Pattern++;
-            break;
-          case 10:
-            FastLED.clear();                      // Clear for Fire Effect
-            fireOutwards.DrawFire(drawVariant);
-            fireOutwards1.DrawFire(drawVariant);
-            fireOutwards2.DrawFire(drawVariant);
-            fireOutwards3.DrawFire(drawVariant);
-            break;
-          case 11:
-            FastLED.clear();
-            DrawFireworks();
-            break;
-          case 12:
-            FastLED.clear();
-            DrawExplosion();
-            break;
-          case 13:
-            EVERY_N_MILLIS(40){   // Change for speed
-              DrawRipples();
-            }
-            break;
-          case 14:
-            LightningStorm();
-            break;
-          case 15:
-            DrawMatrixEffect();
-            break;
-          case 16:
-            ZigZag(20,10);
-            break;
-          case 17:
-           ChangePalettePeriodically2();
-            EVERY_N_MILLISECONDS(10){
-              if(!drawVariant){
-                DrawRazBounceWithMeltAll();
-              }else 
-              DrawRazBounceWithExplodeAll();
-            }
-            break;
-          case 18:
-            FastLED.clear();
-            if(nightMode)
-              currentPalette = NightModeColors_p;
-            else
-              ChangePalettePeriodically2();
-            
-            DrawClock();                        
-            break;
-          case 19:
-            ChangePalettePeriodically2();
-            EVERY_N_MILLISECONDS(75){
-              if(!drawVariant){
-                DrawMaxSwirls();
-              }else DrawSwirlsTogether();
-            }
-            break;
-          case 20:
-            ChangePalettePeriodically2();
-            EVERY_N_MILLISECONDS(75){
-              if(!drawVariant){
-                DrawSwirlsRandom();
-              }else DrawAllSwirlPatterns();
-            }
-            break;
-          case 21:
-            Snake::draw();
-            break;
-          case 22:
-            LavaLake();
-            break;
-          case 23:
-            DrawMagma();
-            break;
-          case 24:
-            if(!drawVariant){
-                Hypnotic::draw();
-              }else ColorPlasma();
-            break;
-          case 25:
-            PoolNoise();
-            break;
-          case 26:
-            DrawCrazyBees();
-            break;
-          case 27:
-            Circles::draw();
-            break;
-          case 50:  // TESTING PATTERN only setable from code
-           PowerTest();
-            break;
-         default:
-            comet1.DrawComet(0);    // DrawComet(StripNumber)
-            comet2.DrawComet(1);
-            comet3.DrawComet(2);
-            comet4.DrawComet(3);
-    }
+    // Handle Pattern Selection and LEDs
+    handlePatterns();
     
     FastLED.setBrightness(g_Brightness);    // Set Brightness Scale before
     FastLED.delay(1);                       // Delay and Show Leds (part of delay function)
