@@ -7,6 +7,8 @@ const int buttonLongPressTime = 50; // How long to register a long button press
 bool buttonState = HIGH;             // For Button Active Low
 bool switchState = HIGH;             // For Switch Active Low
 
+void handleButtons();
+
 void setupButtons(){
     pinMode(BUTTON_PIN, INPUT_PULLUP);
     pinMode(SWITCH_PIN, INPUT_PULLUP);
