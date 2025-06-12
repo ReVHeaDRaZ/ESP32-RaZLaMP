@@ -13,26 +13,8 @@
 #include <FastLED.h>
 
 #include "config.h"
-#define NUM_PATTERNS  27          // Number of Patterns
-#define PATTERN_TIME  30          // Time before Pattern Change
 
 CRGB g_LEDs[NUM_STRIPS][NUM_LEDS] = {0};      // Frame buffer for FastLED
-
-int Pattern = 17;                 // For Pattern Selection-Starts on 17 to Draw "RaZLamp"/ 50 For Testing
-bool autoPattern = true;
-bool buttonState = 1;             // For Button Active Low
-int buttonTime = 0;               // To measure how long button is pressed for
-const int buttonLongPressTime = 50; // How long to register a long button press
-bool SwitchState = 1;             // For Switch Active Low
-bool SoundReactive = 0;           // For Selecting Sound Reactive Patterns
-
-bool drawVariant = false;         // To change from to pattern variants every cycle of patterns
-bool nightMode = false;
-int oldPattern = 9;               // To store last pattern when switching to nightmode
-int oldBrightness = 200;          // To store brightness when switching to nightmode
-
-
-
 
 // Include Pattern and FX Header Files
 #include "clock.h"
@@ -42,6 +24,7 @@ int oldBrightness = 200;          // To store brightness when switching to night
 #include "RazWifi.h"              // RaZ's Wifi Server
 #include "RaZMQTT.h"
 #include "ntptime.h"
+#include "buttons.h"
 
 #if USE_OLED 
 #include <U8g2lib.h>            // Library for OLED on Heltec
@@ -60,8 +43,7 @@ void setup()
   pinMode(LED_PIN2, OUTPUT);
   pinMode(LED_PIN3, OUTPUT);
   pinMode(LED_PIN4, OUTPUT);
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
-  pinMode(SWITCH_PIN, INPUT_PULLUP);
+  setupButtons();
  
   Serial.begin(115200);
   while (!Serial) { }
@@ -83,8 +65,8 @@ void setup()
   FastLED.setBrightness(g_Brightness);                                    // and set brightness from varible
   FastLED.setMaxPowerInMilliWatts(g_PowerLimit);                          // Set Max Power
   
-  SwitchState=digitalRead(SWITCH_PIN);        // Read Switch pin and if LOW
-  if(SwitchState==LOW){
+  switchState=digitalRead(SWITCH_PIN);        // Read Switch pin and if LOW
+  if(switchState==LOW){
         SoundReactive     = 1;
       }else {
         // Setup Wifi Server (true-AccessPointMode, false-StationPointMode)
@@ -103,12 +85,7 @@ void setup()
 void loop() 
 {
   bool bLED = 0;
-  // Hue Variables for basic patterns
-  uint8_t initialHue = 0;
-  uint8_t initialHue2 = 0;
-  const uint8_t deltaHue = 16;
-  const uint8_t hueDensity = 4;
-  
+    
   // Infinite Loop--------------------
   while(true)
   {
@@ -122,39 +99,13 @@ void loop()
     bLED = !bLED;                               // Blink the Onboard LED off and on every loop
     digitalWrite(LED_BUILTIN, bLED);            // for basic framerate indication
     
-    buttonState=digitalRead(BUTTON_PIN);        // Read Button press
-    EVERY_N_MILLIS(10) {
-      if(buttonState==LOW)
-        buttonTime++;
-
-      if(buttonState==HIGH && buttonTime>buttonLongPressTime){ // Change AutoPattern state
-        buttonTime=0;
-        autoPattern=!autoPattern;
-        if(autoPattern)
-          DrawAutoOnText();
-        else
-          DrawAutoOffText();
-      } else if(buttonState==HIGH && buttonTime>1){ // Increment Pattern number
-        buttonTime=0;
-        FastLED.clear();
-        Pattern++;
-        if(Pattern>NUM_PATTERNS){
-          Pattern = 0;
-          drawVariant = !drawVariant;
-        }
-      }
-
-    } 
-    
-    SwitchState=digitalRead(SWITCH_PIN);        // Read Switch state
-    if(SwitchState==LOW){                       // to select SoundReactive
-        SoundReactive = 1;
-      }else {                                   // Else
-        SoundReactive = 0;
+    handleButtons();
+        
+    if(!SoundReactive){
         WifiCheck();                            // Check Wifi for Clients and MQTT
         if((useMQTT) && (wifiApMode==false) )
           MQTTCheck();
-      }
+    }
 
     // Handle OLED drawing and Serial Monitor
     //-------------------------------------------------------------------------------
