@@ -18,8 +18,6 @@
 
 CRGB g_LEDs[NUM_STRIPS][NUM_LEDS] = {0};      // Frame buffer for FastLED
 
-int g_Brightness = 200;           // Brightness Setting
-int g_PowerLimit = 40000;         // Power Limit Setting (40000mW at 5v = 8amps)
 int Pattern = 17;                 // For Pattern Selection-Starts on 17 to Draw "RaZLamp"/ 50 For Testing
 bool autoPattern = true;
 bool buttonState = 1;             // For Button Active Low
@@ -27,29 +25,17 @@ int buttonTime = 0;               // To measure how long button is pressed for
 const int buttonLongPressTime = 50; // How long to register a long button press
 bool SwitchState = 1;             // For Switch Active Low
 bool SoundReactive = 0;           // For Selecting Sound Reactive Patterns
-bool displayInfo = false;         // Display info on OLED/serial?
-bool wifiApMode = false;          // Use Wifi as an AccessPoint = true, as a StationPoint = false
-bool useMQTT = true;             // Set to true and edit RaZMQTT.h if you want to use MQTT
+
 bool drawVariant = false;         // To change from to pattern variants every cycle of patterns
 bool nightMode = false;
 int oldPattern = 9;               // To store last pattern when switching to nightmode
 int oldBrightness = 200;          // To store brightness when switching to nightmode
 
-// Clock Variables for Mins and Hrs
-byte clockCount0    = 8;
-byte clockCount10   = 4;
-byte clockCount100  = 6;
-byte clockCount1000 = 0;
-void ClockCounter();
 
-// Palette Variables
-CRGBPalette16 currentPalette(OceanColors_p);
-CRGBPalette16 targetPalette(PartyColors_p);
-TBlendType    currentBlending;                        // NOBLEND or LINEARBLEND
-void CheckPalettes();                                 // For testing palettes
-void PowerTest();
+
 
 // Include Pattern and FX Header Files
+#include "clock.h"
 #include "Ledgfx.h"               // Utilities
 #include "FFT.h"
 #include "Patterns.h"             // All Patterns
@@ -424,38 +410,3 @@ void loop()
     FastLED.delay(1);                       // Delay and Show Leds (part of delay function)
   }
 }// End Loop
-
-void PowerTest(){
-  int testStrips = 4;
-  for(int x=0; x<testStrips; x++){
-    for(int y=0; y<NUM_LEDS; y++){
-      g_LEDs[x][y] = CRGB(255,255,0);
-    }
-  }
-}
-
-void CheckPalettes(){   // For Testing Palettes
-        fill_palette(g_LEDs[0],NUM_LEDS,0,4,BlueFire_p,250,LINEARBLEND);
-        fill_palette(g_LEDs[1],NUM_LEDS,0,4,HeatColors_p,250,LINEARBLEND);
-
-}
-
-void ClockCounter(){
-    clockCount0++;
-    if (clockCount0 > 9) {  // Minutes
-        clockCount0 = 0;
-        clockCount10++;
-    }
-    if (clockCount10 == 6) { // Hours
-        clockCount10 = 0;
-        clockCount100++;
-    }
-    if (clockCount100 == 3 && clockCount1000 == 1) { // 12 Hours
-        clockCount100 = 1;
-        clockCount1000 = 0;
-    } 
-    if (clockCount100 == 10) { // 10 Hours
-        clockCount100 = 0;
-        clockCount1000++;
-    }  
-}

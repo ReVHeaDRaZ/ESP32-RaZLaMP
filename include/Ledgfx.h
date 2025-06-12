@@ -13,6 +13,7 @@
 #include <FastLED.h>
 
 #include <sys/time.h>                   // For time-of-day
+#include "config.h"
 
 const TProgmemRGBPalette16 NightModeColors_p FL_PROGMEM =
 {
@@ -26,6 +27,25 @@ const TProgmemRGBPalette16 NightModeColors_p FL_PROGMEM =
 // Use qsuba for smooth pixel colouring and qsubd for non-smooth pixel colouring
 #define qsubd(x, b)  ((x>b)?b:0)                              // Digital unsigned subtraction macro. if result <0, then => 0. Otherwise, take on fixed value.
 #define qsuba(x, b)  ((x>b)?x-b:0)                            // Analog Unsigned subtraction macro. if result <0, then => 0
+
+// Palette Variables
+CRGBPalette16 currentPalette(OceanColors_p);
+CRGBPalette16 targetPalette(PartyColors_p);
+TBlendType    currentBlending;                        // NOBLEND or LINEARBLEND
+
+void PowerTest(){
+  int testStrips = 4;
+  for(int x=0; x<testStrips; x++){
+    for(int y=0; y<NUM_LEDS; y++){
+      g_LEDs[x][y] = CRGB(255,255,0);
+    }
+  }
+}
+
+void CheckPalettes(CRGBPalette16 palette){   // For Testing Palettes
+  fill_palette(g_LEDs[0],NUM_LEDS,0,4,palette,250,LINEARBLEND);
+}
+
 
 //inline double RandomDouble()
 //{

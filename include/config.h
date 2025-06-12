@@ -20,3 +20,9 @@
 #include <FastLED.h>
 
 extern CRGB g_LEDs[NUM_STRIPS][NUM_LEDS];
+
+int g_Brightness = 200;         // Brightness Setting
+int g_PowerLimit = 40000;       // Power Limit Setting (40000mW at 5v = 8amps)
+bool displayInfo = false;       // Display info on OLED/serial?
+bool wifiApMode = false;        // Use Wifi as an AccessPoint = true, as a StationPoint = false
+bool useMQTT = true;            // Set to true and edit RaZMQTT.h if you want to use MQTT
